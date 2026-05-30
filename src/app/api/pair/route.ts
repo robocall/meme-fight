@@ -1,0 +1,22 @@
+import { NextResponse } from "next/server";
+
+import { getAllMemes } from "@/lib/db";
+import { pickPair } from "@/lib/pair";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  const pair = pickPair(getAllMemes());
+
+  if (!pair) {
+    return NextResponse.json(
+      { error: "Need at least two memes to start a match." },
+      { status: 400 },
+    );
+  }
+
+  const [memeA, memeB] = pair;
+
+  return NextResponse.json({ memeA, memeB });
+}
