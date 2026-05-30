@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:clear": "tsx scripts/clear-turso.ts",
+    "db:seed-votes": "tsx scripts/seed-votes.ts",
     "db:migrate-local": "tsx scripts/migrate-sqlite-to-turso.ts",
     "deploy:vercel": "bash scripts/deploy-vercel.sh",
     "ingest:reddit": "tsx scripts/ingest-reddit.ts",

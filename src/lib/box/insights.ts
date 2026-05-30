@@ -2,6 +2,7 @@ import type { AiExtractStructuredFieldsField } from "box-node-sdk/sdk-gen/schema
 
 import { getBoxClient } from "@/lib/box/client";
 import { isBoxConfigured } from "@/lib/box/config";
+import { withBoxRetries } from "@/lib/box/retry";
 import type { MemeInsightData } from "@/lib/db/insights";
 
 export const MEME_INSIGHT_FIELDS: AiExtractStructuredFieldsField[] = [
@@ -67,11 +68,13 @@ export async function extractMemeInsights(boxFileId: string): Promise<MemeInsigh
   }
 
   const client = getBoxClient();
-  const response = await client.ai.createAiExtractStructured({
-    items: [{ type: "file", id: boxFileId }],
-    fields: MEME_INSIGHT_FIELDS,
-    includeConfidenceScore: true,
-  });
+  const response = await withBoxRetries(() =>
+    client.ai.createAiExtractStructured({
+      items: [{ type: "file", id: boxFileId }],
+      fields: MEME_INSIGHT_FIELDS,
+      includeConfidenceScore: true,
+    }),
+  );
 
   return normalizeInsightData(response.answer);
 }
