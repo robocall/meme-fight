@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest:reddit": "tsx scripts/ingest-reddit.ts"
   },
   "dependencies": {
+    "apify-client": "^2.23.3",
     "better-sqlite3": "^12.10.0",
+    "box-node-sdk": "^4.11.0",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.6",
     "react": "19.2.4",
@@ -21,10 +24,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.3",
     "typescript": "^5"
   }
 }

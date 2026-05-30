@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, isNotNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
@@ -11,6 +11,7 @@ export async function GET() {
   const leaderboard = getDb()
     .select()
     .from(memes)
+    .where(isNotNull(memes.boxFileId))
     .orderBy(desc(memes.elo), desc(memes.wins))
     .all();
 

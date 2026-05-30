@@ -8,7 +8,12 @@ type MemeCardProps = {
   onVote: (memeId: string) => void;
 };
 
+function getMemeImageSrc(meme: Meme): string {
+  return `/api/memes/${meme.id}/image`;
+}
+
 export function MemeCard({ meme, disabled = false, onVote }: MemeCardProps) {
+  const imageSrc = getMemeImageSrc(meme);
   return (
     <button
       type="button"
@@ -18,10 +23,10 @@ export function MemeCard({ meme, disabled = false, onVote }: MemeCardProps) {
     >
       <div className="relative aspect-square w-full bg-zinc-100">
         <Image
-          src={meme.imageUrl}
+          src={imageSrc}
           alt={meme.title}
           fill
-          className="object-cover transition group-hover:scale-[1.02]"
+          className="object-contain"
           sizes="(max-width: 768px) 100vw, 400px"
         />
       </div>

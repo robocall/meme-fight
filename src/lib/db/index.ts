@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { count, eq } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import fs from "fs";
 import path from "path";
@@ -9,20 +9,30 @@ import * as schema from "./schema";
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "meme_fight.db");
 
-const SEED_MEMES = [
-  { title: "Drake Hotline Bling", imageUrl: "https://picsum.photos/seed/drake/600/600" },
-  { title: "Distracted Boyfriend", imageUrl: "https://picsum.photos/seed/distracted/600/600" },
-  { title: "Woman Yelling at Cat", imageUrl: "https://picsum.photos/seed/cat/600/600" },
-  { title: "Expanding Brain", imageUrl: "https://picsum.photos/seed/brain/600/600" },
-  { title: "This Is Fine", imageUrl: "https://picsum.photos/seed/fine/600/600" },
-  { title: "Surprised Pikachu", imageUrl: "https://picsum.photos/seed/pikachu/600/600" },
-];
-
 type Db = ReturnType<typeof drizzle<typeof schema>>;
 
 const globalForDb = globalThis as typeof globalThis & {
   __memeFightDb?: Db;
 };
+
+function ensureMemesColumns(sqlite: Database.Database) {
+  const columns = sqlite.prepare("PRAGMA table_info(memes)").all() as Array<{ name: string }>;
+  const columnNames = new Set(columns.map((column) => column.name));
+
+  if (!columnNames.has("box_file_id")) {
+    sqlite.exec("ALTER TABLE memes ADD COLUMN box_file_id TEXT");
+  }
+
+  if (!columnNames.has("source_post_id")) {
+    sqlite.exec("ALTER TABLE memes ADD COLUMN source_post_id TEXT");
+  }
+
+  sqlite.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS memes_source_post_id_unique
+    ON memes(source_post_id)
+    WHERE source_post_id IS NOT NULL
+  `);
+}
 
 function initDb(): Db {
   if (globalForDb.__memeFightDb) {
@@ -42,12 +52,15 @@ function initDb(): Db {
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
       image_url TEXT NOT NULL,
+      box_file_id TEXT,
       elo INTEGER NOT NULL DEFAULT 1500,
       wins INTEGER NOT NULL DEFAULT 0,
       losses INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL
     )
   `);
+  ensureMemesColumns(sqlite);
+  purgePlaceholderMemes(sqlite);
   db.run(`
     CREATE TABLE IF NOT EXISTS votes (
       id TEXT PRIMARY KEY,
@@ -57,26 +70,17 @@ function initDb(): Db {
     )
   `);
 
-  const [{ value: memeCount }] = db.select({ value: count() }).from(schema.memes).all();
-  if (memeCount === 0) {
-    const now = new Date();
-    db.insert(schema.memes)
-      .values(
-        SEED_MEMES.map((meme) => ({
-          id: crypto.randomUUID(),
-          title: meme.title,
-          imageUrl: meme.imageUrl,
-          elo: 1500,
-          wins: 0,
-          losses: 0,
-          createdAt: now,
-        })),
-      )
-      .run();
-  }
-
   globalForDb.__memeFightDb = db;
   return db;
+}
+
+function purgePlaceholderMemes(sqlite: Database.Database) {
+  sqlite.exec(`
+    DELETE FROM votes
+    WHERE winner_id IN (SELECT id FROM memes WHERE box_file_id IS NULL)
+       OR loser_id IN (SELECT id FROM memes WHERE box_file_id IS NULL)
+  `);
+  sqlite.exec("DELETE FROM memes WHERE box_file_id IS NULL");
 }
 
 export function getDb() {
@@ -88,5 +92,17 @@ export function getMemeById(id: string) {
 }
 
 export function getAllMemes() {
-  return getDb().select().from(schema.memes).all();
+  return getDb()
+    .select()
+    .from(schema.memes)
+    .where(isNotNull(schema.memes.boxFileId))
+    .all();
+}
+
+export function getMemeBySourcePostId(sourcePostId: string) {
+  return getDb()
+    .select()
+    .from(schema.memes)
+    .where(eq(schema.memes.sourcePostId, sourcePostId))
+    .get();
 }

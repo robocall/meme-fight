@@ -3,8 +3,9 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const memes = sqliteTable("memes", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
-  // Box file URL or shared link — populated when Box integration is added
   imageUrl: text("image_url").notNull(),
+  boxFileId: text("box_file_id"),
+  sourcePostId: text("source_post_id"),
   elo: integer("elo").notNull().default(1500),
   wins: integer("wins").notNull().default(0),
   losses: integer("losses").notNull().default(0),

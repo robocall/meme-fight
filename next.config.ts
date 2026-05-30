@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "picsum.photos",
+        hostname: "**.box.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.boxcloud.com",
       },
     ],
   },

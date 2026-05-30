@@ -11,7 +11,7 @@ export async function GET() {
 
   if (!pair) {
     return NextResponse.json(
-      { error: "Need at least two memes to start a match." },
+      { error: "Need at least two Box-backed memes. Run npm run ingest:reddit to import more." },
       { status: 400 },
     );
   }
