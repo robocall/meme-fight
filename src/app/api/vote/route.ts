@@ -38,8 +38,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const winner = getMemeById(winnerId);
-  const loser = getMemeById(loserId);
+  const winner = await getMemeById(winnerId);
+  const loser = await getMemeById(loserId);
 
   if (!winner || !loser) {
     return NextResponse.json({ error: "One or both memes not found." }, { status: 404 });
@@ -48,30 +48,28 @@ export async function POST(request: Request) {
   const { winnerElo, loserElo } = updateElo(winner.elo, loser.elo);
   const db = getDb();
 
-  db.insert(votes)
-    .values({
-      id: crypto.randomUUID(),
-      winnerId,
-      loserId,
-      createdAt: new Date(),
-    })
-    .run();
+  await db.insert(votes).values({
+    id: crypto.randomUUID(),
+    winnerId,
+    loserId,
+    createdAt: new Date(),
+  });
 
-  db.update(memes)
+  await db
+    .update(memes)
     .set({
       elo: winnerElo,
       wins: winner.wins + 1,
     })
-    .where(eq(memes.id, winnerId))
-    .run();
+    .where(eq(memes.id, winnerId));
 
-  db.update(memes)
+  await db
+    .update(memes)
     .set({
       elo: loserElo,
       losses: loser.losses + 1,
     })
-    .where(eq(memes.id, loserId))
-    .run();
+    .where(eq(memes.id, loserId));
 
   return NextResponse.json({
     winner: { ...winner, elo: winnerElo, wins: winner.wins + 1 },

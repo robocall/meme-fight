@@ -23,7 +23,7 @@ next-env.d.ts
 # Testing
 /coverage
 
-# Local SQLite database (better-sqlite3 + WAL mode)
+# Local SQLite (legacy; app uses Turso)
 /data/
 *.db
 *.db-wal

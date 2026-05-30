@@ -14,6 +14,9 @@ export function Nav() {
           <Link href="/leaderboard" className="text-zinc-700 hover:text-zinc-900">
             Leaderboard
           </Link>
+          <Link href="/insights" className="text-zinc-700 hover:text-zinc-900">
+            Insights
+          </Link>
         </nav>
       </div>
     </header>

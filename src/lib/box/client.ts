@@ -14,7 +14,25 @@ import {
 
 const globalForBox = globalThis as typeof globalThis & {
   __boxClient?: BoxClient;
+  __boxDeveloperToken?: string;
 };
+
+function createBoxClient(): BoxClient {
+  const authMode = getBoxAuthMode();
+
+  if (authMode === "ccg") {
+    const ccgConfig = new CcgConfig({
+      clientId: requireBoxEnv("BOX_CLIENT_ID"),
+      clientSecret: requireBoxEnv("BOX_CLIENT_SECRET"),
+      enterpriseId: requireBoxEnv("BOX_ENTERPRISE_ID"),
+    });
+    return new BoxClient({ auth: new BoxCcgAuth({ config: ccgConfig }) });
+  }
+
+  return new BoxClient({
+    auth: new BoxDeveloperTokenAuth({ token: requireDeveloperToken() }),
+  });
+}
 
 export function getBoxClient(): BoxClient {
   if (!isBoxConfigured()) {
@@ -23,21 +41,19 @@ export function getBoxClient(): BoxClient {
     );
   }
 
-  if (!globalForBox.__boxClient) {
-    const authMode = getBoxAuthMode();
+  const authMode = getBoxAuthMode();
 
-    if (authMode === "ccg") {
-      const ccgConfig = new CcgConfig({
-        clientId: requireBoxEnv("BOX_CLIENT_ID"),
-        clientSecret: requireBoxEnv("BOX_CLIENT_SECRET"),
-        enterpriseId: requireBoxEnv("BOX_ENTERPRISE_ID"),
-      });
-      globalForBox.__boxClient = new BoxClient({ auth: new BoxCcgAuth({ config: ccgConfig }) });
-    } else {
-      globalForBox.__boxClient = new BoxClient({
-        auth: new BoxDeveloperTokenAuth({ token: requireDeveloperToken() }),
-      });
+  if (authMode === "developer_token") {
+    const token = requireDeveloperToken();
+    if (globalForBox.__boxClient && globalForBox.__boxDeveloperToken !== token) {
+      globalForBox.__boxClient = undefined;
     }
+
+    globalForBox.__boxDeveloperToken = token;
+  }
+
+  if (!globalForBox.__boxClient) {
+    globalForBox.__boxClient = createBoxClient();
   }
 
   return globalForBox.__boxClient;

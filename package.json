@@ -7,11 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ingest:reddit": "tsx scripts/ingest-reddit.ts"
+    "db:push": "drizzle-kit push",
+    "db:clear": "tsx scripts/clear-turso.ts",
+    "db:migrate-local": "tsx scripts/migrate-sqlite-to-turso.ts",
+    "deploy:vercel": "bash scripts/deploy-vercel.sh",
+    "ingest:reddit": "tsx scripts/ingest-reddit.ts",
+    "extract:insights": "tsx scripts/extract-insights.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.0",
     "apify-client": "^2.23.3",
-    "better-sqlite3": "^12.10.0",
     "box-node-sdk": "^4.11.0",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.6",
@@ -20,7 +25,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

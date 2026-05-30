@@ -226,7 +226,7 @@ async function processMediaItem(
     return "skipped_no_post_id";
   }
 
-  if (getMemeBySourcePostId(sourcePostId)) {
+  if (await getMemeBySourcePostId(sourcePostId)) {
     return "skipped_duplicate";
   }
 
@@ -235,20 +235,17 @@ async function processMediaItem(
   const fileName = `reddit-${sourcePostId}.${extension}`;
   const uploaded = await uploadMemeFile(fileName, buffer, contentType);
 
-  getDb()
-    .insert(memes)
-    .values({
-      id: crypto.randomUUID(),
-      title: normalizeTitle(item.title),
-      imageUrl: uploaded.sharedLinkUrl,
-      boxFileId: uploaded.boxFileId,
-      sourcePostId,
-      elo: 1500,
-      wins: 0,
-      losses: 0,
-      createdAt: new Date(),
-    })
-    .run();
+  await getDb().insert(memes).values({
+    id: crypto.randomUUID(),
+    title: normalizeTitle(item.title),
+    imageUrl: uploaded.sharedLinkUrl,
+    boxFileId: uploaded.boxFileId,
+    sourcePostId,
+    elo: 1500,
+    wins: 0,
+    losses: 0,
+    createdAt: new Date(),
+  });
 
   return "imported";
 }

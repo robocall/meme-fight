@@ -13,7 +13,7 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const meme = getMemeById(id);
+  const meme = await getMemeById(id);
 
   if (!meme) {
     return NextResponse.json({ error: "Meme not found." }, { status: 404 });

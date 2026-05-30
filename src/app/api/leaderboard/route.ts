@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const leaderboard = getDb()
+  const leaderboard = await getDb()
     .select()
     .from(memes)
     .where(isNotNull(memes.boxFileId))

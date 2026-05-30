@@ -74,10 +74,25 @@ export async function downloadMemeFile(fileId: string): Promise<{
     throw new Error("Box download returned no content.");
   }
 
+  const contentType =
+    mimeTypeFromExtension(file.extension ?? "") ??
+    mimeTypeFromFileName(file.name ?? "") ??
+    "image/jpeg";
+
   return {
     content: await readByteStream(stream),
-    contentType: file.extension ? mimeTypeFromExtension(file.extension) : null,
+    contentType,
   };
+}
+
+function mimeTypeFromFileName(fileName: string): string | null {
+  const match = fileName.match(/\.([a-z0-9]+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  const mime = mimeTypeFromExtension(match[1]);
+  return mime === "application/octet-stream" ? null : mime;
 }
 
 function mimeTypeFromExtension(extension: string): string {

@@ -88,9 +88,11 @@ export function VoteArena() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <p className="text-center text-zinc-600">Click the meme you think is better.</p>
-      <div className="grid gap-6 md:grid-cols-2">
+    <div className="flex w-full flex-col gap-4">
+      <p className="text-center text-sm text-zinc-600 md:text-base">
+        Click the meme you think is better.
+      </p>
+      <div className="grid w-full gap-4 md:grid-cols-2 md:gap-8">
         <MemeCard meme={pair.memeA} disabled={voting} onVote={handleVote} />
         <div className="flex items-center justify-center md:hidden">
           <span className="rounded-full bg-zinc-900 px-3 py-1 text-sm font-semibold text-white">

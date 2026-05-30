@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const pair = pickPair(getAllMemes());
+  const pair = pickPair(await getAllMemes());
 
   if (!pair) {
     return NextResponse.json(

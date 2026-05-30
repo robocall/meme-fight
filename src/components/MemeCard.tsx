@@ -19,20 +19,22 @@ export function MemeCard({ meme, disabled = false, onVote }: MemeCardProps) {
       type="button"
       disabled={disabled}
       onClick={() => onVote(meme.id)}
-      className="group flex w-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-sm transition hover:border-zinc-400 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+      className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left shadow-sm transition hover:border-zinc-400 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <div className="relative aspect-square w-full bg-zinc-100">
+      <div className="relative min-h-[50vh] w-full flex-1 bg-zinc-100 md:min-h-[70vh]">
         <Image
           src={imageSrc}
           alt={meme.title}
           fill
-          className="object-contain"
-          sizes="(max-width: 768px) 100vw, 400px"
+          unoptimized
+          priority
+          className="object-contain p-2 transition group-hover:scale-[1.01]"
+          sizes="(max-width: 768px) 100vw, 45vw"
         />
       </div>
-      <div className="flex flex-col gap-1 p-4">
-        <h2 className="text-lg font-semibold text-zinc-900">{meme.title}</h2>
-        <p className="text-sm text-zinc-500">ELO {meme.elo}</p>
+      <div className="flex shrink-0 flex-col gap-0.5 border-t border-zinc-100 px-4 py-3">
+        <h2 className="line-clamp-2 text-base font-semibold text-zinc-900">{meme.title}</h2>
+        <p className="text-xs text-zinc-500">ELO {meme.elo}</p>
       </div>
     </button>
   );
